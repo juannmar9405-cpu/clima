@@ -83,21 +83,25 @@ def realizar_prediccion(datos_entrada):
     Ejecuta el modelo Random Forest.
     """
     if modelo is None: raise Exception("El Modelo RF no está cargado.")
-    
-    # 1. Realizar la predicción (así de simple)
+
+    # 1. Realizar la predicción
+    # datos_entrada es (1, 3) [2D]
+    # prediccion_escalada será (1, 3) [2D]
     prediccion_escalada = modelo.predict(datos_entrada)
-    
-    # 2. Invertir la escala (El scaler espera 2D)
-    prediccion_desescalada = scaler.inverse_transform([prediccion_escalada])
-    
+
+    # 2. Invertir la escala
+    # --- ¡AQUÍ ESTABA EL ERROR! ---
+    # Quité los corchetes [ ] extra que envolvían a prediccion_escalada
+    prediccion_desescalada = scaler.inverse_transform(prediccion_escalada)
+
     # 3. Formatear la salida
-    resultado = prediccion_desescalada[0]
+    resultado = prediccion_desescalada[0] # Tomamos la primera (y única) fila
     prediccion_final = {
         "temperatura_pred": round(float(resultado[0]), 2),
         "precipitacion_pred": round(float(resultado[1]), 2),
         "tormenta_pred": 1 if float(resultado[2]) > 0.5 else 0
     }
-    
+
     return prediccion_final
 
 # --- 6. El "Endpoint" de la API (sin cambios) ---
